@@ -29,6 +29,14 @@ public class FileController {
     @Autowired
     SponServiceImpl sponService;
 
+
+    //addOrgHeader
+
+    /**
+     * 添加or修改机构的头像图标
+     * @param file
+     * @return
+     */
     @RequestMapping("/upload")
     public Map<String, Object> upload(@RequestParam("file")MultipartFile file){
         String id=stringRedisTemplate.opsForValue().get("orgId");
@@ -42,6 +50,18 @@ public class FileController {
         return map;
     }
 
+    @RequestMapping("/uploadSponIcon")
+    public Map<String,Object> addSponIcon(@RequestParam("file")MultipartFile file){
+        Map map =toolUpLoad.fileUpload(file,"","temp/");
+        return map;
+    }
+
+    /**
+     * 修改赞助商图标
+     * @param file
+     * @param sponId
+     * @return
+     */
     @RequestMapping("/updateSponIcon/{id}")
     public Map<String, Object> uploadSponIcon(@RequestParam("file")MultipartFile file, @PathVariable("id")String sponId){
         String id=stringRedisTemplate.opsForValue().get("orgId");
@@ -54,4 +74,5 @@ public class FileController {
         }
         return map;
     }
+
 }

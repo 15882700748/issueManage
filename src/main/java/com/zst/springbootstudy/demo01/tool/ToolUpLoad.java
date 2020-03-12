@@ -24,7 +24,7 @@ public class ToolUpLoad {
     @Autowired
     JWTUtil jwtUtil;
 
-    public  Map<String, Object> fileUpload(MultipartFile file,String id,String targetPath) {
+    public  Map<String, Object> fileUpload(MultipartFile file,String prex,String targetPath) {
         Map<String, Object> resultMap = new HashMap<String, Object>();
         String tempPath = null;
         resultMap.put("code","100");
@@ -47,8 +47,8 @@ public class ToolUpLoad {
             String filename = file.getOriginalFilename();
             String filePath ="";
             try {
-                filePath = id+ filename;
-                filename = tempPath  + id+ filename;
+                filePath = prex+ filename;
+                filename = tempPath  + prex+ filename;
 
 
             } catch (Exception e) {
