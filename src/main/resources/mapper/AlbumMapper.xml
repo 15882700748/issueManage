@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zst.springbootstudy.demo01.mapper.AlbumMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.zst.springbootstudy.demo01.entity.Album">
+        <id column="albumId" property="albumId" />
+        <result column="ablumName" property="ablumName" />
+        <result column="ablumDesc" property="ablumDesc" />
+        <result column="createTime" property="createTime" />
+        <result column="orgId" property="orgId" />
+    </resultMap>
+
+</mapper>
