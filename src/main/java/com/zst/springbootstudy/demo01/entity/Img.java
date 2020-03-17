@@ -3,6 +3,7 @@ package com.zst.springbootstudy.demo01.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import com.baomidou.mybatisplus.annotation.TableId;
+import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import lombok.Data;
@@ -15,7 +16,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author zst
- * @since 2020-02-16
+ * @since 2020-03-16
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -30,7 +31,8 @@ public class Img extends Model<Img> {
     @TableField("articleId")
     private Integer articleId;
 
-    private Integer url;
+    @TableField("imgUrl")
+    private String imgUrl;
 
     @TableField("columId")
     private Integer columId;
@@ -40,6 +42,12 @@ public class Img extends Model<Img> {
 
     @TableField("issueId")
     private Integer issueId;
+
+    @TableField("albumId")
+    private Integer albumId;
+
+    @TableField("uploadTime")
+    private LocalDateTime uploadTime;
 
 
     @Override

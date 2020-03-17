@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author zst
- * @since 2020-02-16
+ * @since 2020-03-13
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -28,11 +28,11 @@ public class Album extends Model<Album> {
     @TableId(value = "albumId", type = IdType.AUTO)
     private Integer albumId;
 
-    @TableField("ablumName")
-    private String ablumName;
+    @TableField("albumName")
+    private String albumName;
 
-    @TableField("ablumDesc")
-    private String ablumDesc;
+    @TableField("albumDesc")
+    private String albumDesc;
 
     @TableField("createTime")
     private LocalDateTime createTime;

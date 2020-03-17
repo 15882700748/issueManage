@@ -1,13 +1,18 @@
 package com.zst.springbootstudy.demo01.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.github.pagehelper.util.StringUtil;
+import com.zst.springbootstudy.demo01.entity.Img;
 import com.zst.springbootstudy.demo01.entity.Organization;
 import com.zst.springbootstudy.demo01.entity.Spon;
+import com.zst.springbootstudy.demo01.service.impl.ImgServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.OrganizationServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.SponServiceImpl;
 import com.zst.springbootstudy.demo01.tool.ToolUpLoad;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
+import java.io.File;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -28,6 +36,8 @@ public class FileController {
     OrganizationServiceImpl organizationService;
     @Autowired
     SponServiceImpl sponService;
+    @Autowired
+    ImgServiceImpl imgService;
 
 
     //addOrgHeader
@@ -74,5 +84,28 @@ public class FileController {
         }
         return map;
     }
+    //img..............................................................................................................
 
+    @RequestMapping("/uploadImg/{id}")
+    public Map<String,Object> uploadImg(@RequestParam("file")MultipartFile file,@PathVariable("id") String id){
+        Map map ;
+        //有id则更新
+        if(StringUtils.isNotEmpty(id)){
+            Img img = imgService.getById(id);
+            //deleteImg
+            String fileName = img.getImgUrl();
+            try {
+                String path = ResourceUtils.getURL("classpath:static/").getPath()+"album/";
+                File targetFile = new File(path+fileName);
+                targetFile.delete();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else{//无id则上传
+
+        }
+        String prex = String.valueOf(LocalDate.now());
+        map =toolUpLoad.fileUpload(file,prex+"#","album/");
+        return map;
+    }
 }

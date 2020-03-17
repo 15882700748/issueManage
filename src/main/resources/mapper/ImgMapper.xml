@@ -6,10 +6,12 @@
     <resultMap id="BaseResultMap" type="com.zst.springbootstudy.demo01.entity.Img">
         <id column="imgId" property="imgId" />
         <result column="articleId" property="articleId" />
-        <result column="url" property="url" />
+        <result column="imgUrl" property="imgUrl" />
         <result column="columId" property="columId" />
         <result column="orgId" property="orgId" />
         <result column="issueId" property="issueId" />
+        <result column="albumId" property="albumId" />
+        <result column="uploadTime" property="uploadTime" />
     </resultMap>
 
 </mapper>

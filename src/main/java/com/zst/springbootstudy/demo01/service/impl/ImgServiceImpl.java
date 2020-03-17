@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * </p>
  *
  * @author zst
- * @since 2020-02-16
+ * @since 2020-03-16
  */
 @Service
 public class ImgServiceImpl extends ServiceImpl<ImgMapper, Img> implements ImgService {

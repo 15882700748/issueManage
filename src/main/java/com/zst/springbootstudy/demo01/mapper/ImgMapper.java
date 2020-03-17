@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author zst
- * @since 2020-02-16
+ * @since 2020-03-16
  */
 public interface ImgMapper extends BaseMapper<Img> {
 

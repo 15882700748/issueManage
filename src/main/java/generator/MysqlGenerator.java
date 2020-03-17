@@ -110,7 +110,7 @@ public class MysqlGenerator {
 //        strategy.setInclude("issue");
 //        strategy.setInclude("spon");
 //        strategy.setInclude("organization");
-        strategy.setInclude("style");
+        strategy.setInclude("img");
         //strategy.setSuperEntityColumns("id");
         // 驼峰转连字符
         strategy.setControllerMappingHyphenStyle(true);
