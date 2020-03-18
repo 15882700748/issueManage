@@ -24,6 +24,9 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
+import static java.util.UUID.*;
 
 @RestController
 public class FileController {
@@ -50,11 +53,12 @@ public class FileController {
     @RequestMapping("/upload")
     public Map<String, Object> upload(@RequestParam("file")MultipartFile file){
         String id=stringRedisTemplate.opsForValue().get("orgId");
-        Map map =toolUpLoad.fileUpload(file,"orgId"+id,"defaultImg/");
+        String prex = randomUUID().toString();
+        Map map =toolUpLoad.fileUpload(file, prex,"defaultImg/");
         if("200".equalsIgnoreCase(String.valueOf(map.get("code")))){
             Organization organization = new Organization();
             organization.setOrgId(Integer.valueOf(id));
-            organization.setLogoUrl("orgId"+id + file.getOriginalFilename());
+            organization.setLogoUrl(prex + file.getOriginalFilename());
             organizationService.updateById(organization);
         }
         return map;
@@ -75,22 +79,24 @@ public class FileController {
     @RequestMapping("/updateSponIcon/{id}")
     public Map<String, Object> uploadSponIcon(@RequestParam("file")MultipartFile file, @PathVariable("id")String sponId){
         String id=stringRedisTemplate.opsForValue().get("orgId");
-        Map map =toolUpLoad.fileUpload(file,"sponid"+sponId,"sponIcon/");
+        String prex = randomUUID().toString();
+        Map map =toolUpLoad.fileUpload(file,prex,"sponIcon/");
         if("200".equalsIgnoreCase(String.valueOf(map.get("code")))){
             Spon spon = new Spon();
             spon.setSponId(Integer.valueOf(sponId));
-            spon.setLogoUrl("sponid"+sponId + file.getOriginalFilename());
+            spon.setLogoUrl(prex+ file.getOriginalFilename());
             sponService.updateById(spon);
         }
         return map;
     }
     //img..............................................................................................................
 
-    @RequestMapping("/uploadImg/{id}")
-    public Map<String,Object> uploadImg(@RequestParam("file")MultipartFile file,@PathVariable("id") String id){
+    @RequestMapping("/uploadImg{status}/{id}")
+    public Map<String,Object> uploadImg(@RequestParam("file")MultipartFile file,@PathVariable("id") String id,@PathVariable("status") String status){
         Map map ;
+        String prex = randomUUID().toString();
         //有id则更新
-        if(StringUtils.isNotEmpty(id)){
+        if("update".equalsIgnoreCase(status)){
             Img img = imgService.getById(id);
             //deleteImg
             String fileName = img.getImgUrl();
@@ -104,8 +110,12 @@ public class FileController {
         }else{//无id则上传
 
         }
-        String prex = String.valueOf(LocalDate.now());
-        map =toolUpLoad.fileUpload(file,prex+"#","album/");
+        map =toolUpLoad.fileUpload(file,prex,"album/");
         return map;
+    }
+
+    @RequestMapping("/uploadArticleImg")
+    public Map<String, Object> uploadArticleImg(@RequestParam("fileName")MultipartFile file){
+        return toolUpLoad.fileUpload(file,randomUUID().toString()+file.getOriginalFilename(),"article/");
     }
 }

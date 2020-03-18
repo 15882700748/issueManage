@@ -49,15 +49,17 @@ public class ArticleController {
     @RequestMapping("/addArticle")
     public Map<String,Object> addArticle(@RequestBody Article article){
         Map<String,Object> map = new HashMap<>();
-        map.put("code","200");
+        map.put("code","100");
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
         QueryWrapper<Article> queryWrapper = new QueryWrapper();
-        queryWrapper.eq("orgId",orgId);
+        queryWrapper.lambda().eq(Article::getTitle,article.getTitle()).or().eq(Article::getContent,article.getContent())
+                .eq(Article::getOrgId,orgId);
         int size = articleService.list(queryWrapper).size();
         if(size > 0 ){
             map.put("msg","已存在，请重新输入");
         }else{
             article.setRealseTime(LocalDateTime.now());
+            article.setOrgId(Integer.valueOf(orgId));
             articleService.save(article);
             map.put("code","200");
             map.put("msg","添加成功");
@@ -94,7 +96,7 @@ public class ArticleController {
             article.setRealseTime(LocalDateTime.now());
             articleService.updateById(article);
             map.put("code","200");
-            map.put("msg","修改成功成功");
+            map.put("msg","修改成功");
         }
         return map;
     }
@@ -114,5 +116,10 @@ public class ArticleController {
 //        }
         IPage<Article> articleIPage = articleService.page(page,queryWrapper);
         return articleIPage;
+    }
+
+    @RequestMapping("/getOneArticle")
+    public Article getOneArticle(@RequestBody Article article){
+        return articleService.getById(article.getArticleId());
     }
 }
