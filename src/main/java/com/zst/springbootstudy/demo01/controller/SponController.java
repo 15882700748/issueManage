@@ -16,11 +16,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.net.URLDecoder;
+import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.util.UUID.randomUUID;
 
 /**
  * <p>
@@ -52,45 +54,71 @@ public class SponController {
     public Map addSpon( @RequestBody Spon spon){
         Map map = new HashMap();
         map.put("code","100");
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
         QueryWrapper<Spon> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Spon :: getSponName,spon.getSponName())
-                .or().eq(Spon::getSite,spon.getSite());
+                .eq(Spon::getOrgId,orgId);
         int size = sponService.list(queryWrapper).size();
         if(size > 0){
             map.put("msg","已存在");
         }else{
-            spon.setOrgId(Integer.valueOf(stringRedisTemplate.opsForValue().get("orgId")));
+            spon.setOrgId(Integer.valueOf(orgId));
             //图标控制
             String fileName = spon.getLogoUrl();
+            System.out.println(fileName);
             try {
                 String path = ResourceUtils.getURL("classpath:static/").getPath();
-                String tempPath = path + "temp/";
-                String targetPath = path + "sponIcon/";
-                String tempFilePath =tempPath +fileName;
+                String prex = stringRedisTemplate.opsForValue().get("sponTempPrex");
+                String tempPath;
+                String targetPath;
+                String tempFilePath;
+                String targetFilePath;
+                boolean isUpload ;
+                // no upload
+                System.out.println(prex);
+                if(StringUtils.isEmpty(prex)){
+                    prex = randomUUID().toString();
+                    tempPath = path + "sponIcon/";
+                    tempFilePath =tempPath +fileName;
+                    isUpload = false;
+                }else {
+                    tempPath = path + "temp/";
+                    tempFilePath =tempPath +prex+fileName;
+                    isUpload = true;
+                }
+                targetPath = path + "sponIcon/";
+                targetFilePath = targetPath +prex+ fileName;
+                //decode
                 tempFilePath = URLDecoder.decode(tempFilePath,"utf-8");
+                targetFilePath = URLDecoder.decode(targetFilePath,"utf-8");
                 File tempFile = new File(tempFilePath);
-                System.out.println(tempFile.getAbsolutePath());
+                File targetFile = new File(targetFilePath);
+                System.out.println(tempFilePath);
+                System.out.println(targetFilePath);
                 if(tempFile.exists()&&tempFile.isFile()){
-                    String targetFilePath = targetPath + tempFile.getName();
-                    targetFilePath = URLDecoder.decode(targetFilePath,"utf-8");
-                    File targetFile = new File(targetFilePath);
-                    if(!targetFile.exists()){
-                        targetFile.mkdirs();
-                    }
-                    targetFile.createNewFile();
+                    //tempFile move to targetFile
+                    FileChannel input = new FileInputStream(tempFile).getChannel();
+                    FileChannel  output = new FileOutputStream(targetFile).getChannel();
+                    output.transferFrom(input, 0, input.size());
+                    spon.setLogoUrl(prex+fileName);
+                    System.out.println(spon.getLogoUrl());
+                }else{
+                    System.out.println("文件不存在or不是文件");
+                }
+                if(isUpload){
+                    //temp文件删除
                     tempPath =  URLDecoder.decode(tempPath,"utf-8");
                     File[] files = new File(tempPath).listFiles();
                     for(File file : files){
                         file.delete();
                     }
-
-                }else{
-                    System.out.println("文件不存在or不是文件");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             sponService.save(spon);
+            stringRedisTemplate.opsForValue().set("sponTempPrex","");
             map.put("msg","添加成功");
             map.put("code","200");
         }
@@ -103,9 +131,17 @@ public class SponController {
      * 删除赞助商
      * @param spon
      */
-    @RequestMapping("/deleteOrgById")
+    @RequestMapping("/deleteSponById")
     public void deleteOrgById(@RequestBody Spon spon){
-        sponService.removeById(spon.getSponId());
+        spon = sponService.getById(spon.getSponId());
+        try {
+            File  file = new File(URLDecoder.decode(ResourceUtils.getURL("classpath:static/").getPath()+"sponIcon/"+spon.getLogoUrl()));
+            file.delete();
+            sponService.removeById(spon.getSponId());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     //update.......................................................................................................

@@ -9,7 +9,9 @@ import com.zst.springbootstudy.demo01.entity.Spon;
 import com.zst.springbootstudy.demo01.service.impl.ImgServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.OrganizationServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.SponServiceImpl;
+import com.zst.springbootstudy.demo01.tool.FileTool;
 import com.zst.springbootstudy.demo01.tool.ToolUpLoad;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.ResourceUtils;
@@ -21,6 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.websocket.server.PathParam;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URLDecoder;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +46,8 @@ public class FileController {
     @Autowired
     ImgServiceImpl imgService;
 
+    @Autowired
+    FileTool fileTool;
 
     //addOrgHeader
 
@@ -66,8 +72,24 @@ public class FileController {
 
     @RequestMapping("/uploadSponIcon")
     public Map<String,Object> addSponIcon(@RequestParam("file")MultipartFile file){
-        Map map =toolUpLoad.fileUpload(file,"","temp/");
+        String prex = randomUUID().toString();
+        stringRedisTemplate.opsForValue().set("sponTempPrex",prex);
+        Map map =toolUpLoad.fileUpload(file,prex,"temp/");
         return map;
+    }
+
+    @RequestMapping("/cancleUploadSponIcon")
+    public void cancleUploadSponIcon(){
+        try {
+            String path = ResourceUtils.getURL("classpath:static/").getPath()+"temp/";
+            File[] files = new File(URLDecoder.decode(path)).listFiles();
+            for (File file:files){
+                file.delete();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -82,6 +104,8 @@ public class FileController {
         String prex = randomUUID().toString();
         Map map =toolUpLoad.fileUpload(file,prex,"sponIcon/");
         if("200".equalsIgnoreCase(String.valueOf(map.get("code")))){
+            Spon tempSpon = sponService.getById(sponId);
+            fileTool.deleteFile(tempSpon.getLogoUrl(),"sponIcon/");
             Spon spon = new Spon();
             spon.setSponId(Integer.valueOf(sponId));
             spon.setLogoUrl(prex+ file.getOriginalFilename());
@@ -102,7 +126,7 @@ public class FileController {
             String fileName = img.getImgUrl();
             try {
                 String path = ResourceUtils.getURL("classpath:static/").getPath()+"album/";
-                File targetFile = new File(path+fileName);
+                File targetFile = new File(URLDecoder.decode(path+fileName));
                 targetFile.delete();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -117,5 +141,27 @@ public class FileController {
     @RequestMapping("/uploadArticleImg")
     public Map<String, Object> uploadArticleImg(@RequestParam("fileName")MultipartFile file){
         return toolUpLoad.fileUpload(file,randomUUID().toString()+file.getOriginalFilename(),"article/");
+    }
+
+
+    @RequestMapping("/sponIconFileDelete")
+    public void fileDelete(@Param("isUpload")boolean isUpload){
+        if(isUpload){
+            try {
+                stringRedisTemplate.opsForValue().set("sponTempPrex","");
+                String path = ResourceUtils.getURL("classpath:static/").getPath();
+                String tempPath = path + "temp/";
+                tempPath =  URLDecoder.decode(tempPath,"utf-8");
+                File[] files = new File(tempPath).listFiles();
+                for(File file : files){
+                    file.delete();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }else{
+
+        }
     }
 }

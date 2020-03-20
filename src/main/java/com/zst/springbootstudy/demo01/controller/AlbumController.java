@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -98,6 +99,7 @@ public class AlbumController {
         for(Img item : imgs){
             try {
                 String filePath =  path+ item.getImgUrl();
+                filePath = URLDecoder.decode(filePath);
                 File file = new File(filePath);
                 if(file.exists()&&file.isFile()){
                     file.delete();
@@ -146,9 +148,9 @@ public class AlbumController {
     public IPage<Album> page(@Param("pageNo")Integer  pageNo, @Param("pageSize") Integer pageSize){
         IPage<Album> page = new Page<>(pageNo,pageSize);
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
-        QueryWrapper queryWrapper = new QueryWrapper<>();
+        QueryWrapper<Album> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("orgId",orgId);
-        IPage<Album> albumIPage= albumService.page(page);
+        IPage<Album> albumIPage= albumService.page(page,queryWrapper);
         return albumIPage;
     }
 }

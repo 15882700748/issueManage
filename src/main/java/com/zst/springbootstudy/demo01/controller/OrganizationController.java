@@ -224,6 +224,7 @@ public class OrganizationController {
             try {
                 mode.put("msg","登录成功");
                 mode.put("code","200");
+                mode.put("orgName",map.get("account"));
                 stringRedisTemplate.opsForValue().set("orgId", String.valueOf(organization.getOrgId()));
             } catch (JSONException e) {
                 e.printStackTrace();

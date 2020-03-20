@@ -8,17 +8,22 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zst.springbootstudy.demo01.entity.Article;
 import com.zst.springbootstudy.demo01.entity.Spon;
 import com.zst.springbootstudy.demo01.service.impl.ArticleServiceImpl;
+import com.zst.springbootstudy.demo01.tool.RegHtml;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.File;
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,6 +44,9 @@ public class ArticleController {
     @Autowired
     StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    RegHtml regHtml;
+
     //add.......................................................................................................
 
     /**
@@ -53,7 +61,7 @@ public class ArticleController {
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
         QueryWrapper<Article> queryWrapper = new QueryWrapper();
         queryWrapper.lambda().eq(Article::getTitle,article.getTitle()).or().eq(Article::getContent,article.getContent())
-                .eq(Article::getOrgId,orgId);
+                .eq(Article::getOrgId,orgId).eq(Article::getIssueId,article.getIssueId());
         int size = articleService.list(queryWrapper).size();
         if(size > 0 ){
             map.put("msg","已存在，请重新输入");
@@ -70,6 +78,21 @@ public class ArticleController {
     //delete.......................................................................................................
     @RequestMapping("/deleteArticle")
     public void deleteArticle(@RequestBody Article article){
+        article = articleService.getById(article.getArticleId());
+        List<String> srcList = regHtml.getSrc(article.getContent());
+        try {
+            String path = ResourceUtils.getURL("classpath:static/").getPath()+"article/";
+            for(String src: srcList){
+                String tem=src.substring(30);
+                System.out.println(tem);
+                File file = new  File(URLDecoder.decode(path +tem ));
+                if(file.exists()){
+                    file.delete();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         articleService.removeById(article.getArticleId());
     }
 
