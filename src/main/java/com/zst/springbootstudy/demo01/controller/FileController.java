@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.github.pagehelper.util.StringUtil;
 import com.zst.springbootstudy.demo01.entity.Img;
+import com.zst.springbootstudy.demo01.entity.Issue;
 import com.zst.springbootstudy.demo01.entity.Organization;
 import com.zst.springbootstudy.demo01.entity.Spon;
 import com.zst.springbootstudy.demo01.service.impl.ImgServiceImpl;
+import com.zst.springbootstudy.demo01.service.impl.IssueServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.OrganizationServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.SponServiceImpl;
 import com.zst.springbootstudy.demo01.tool.FileTool;
@@ -45,6 +47,8 @@ public class FileController {
     SponServiceImpl sponService;
     @Autowired
     ImgServiceImpl imgService;
+    @Autowired
+    IssueServiceImpl issueService;
 
     @Autowired
     FileTool fileTool;
@@ -163,5 +167,21 @@ public class FileController {
         }else{
 
         }
+    }
+
+    @RequestMapping("/uploadIssueLogo{issueId}")
+    public Map<String, Object> uploadIssueLogo(@RequestParam("file")MultipartFile file,@PathVariable("issueId")String issueId){
+        Issue issue = issueService.getById(issueId);
+        try {
+            File dFile = new File(URLDecoder.decode(ResourceUtils.getURL("classpath:static/").getPath()+"issue/"+issue.getLogo()));
+            dFile.delete();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        String prex = randomUUID().toString();
+        String logo = prex+file.getOriginalFilename();
+        issue.setLogo(logo);
+        issueService.updateById(issue);
+        return toolUpLoad.fileUpload(file,prex,"issue/");
     }
 }

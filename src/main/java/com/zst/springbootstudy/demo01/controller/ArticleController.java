@@ -126,17 +126,12 @@ public class ArticleController {
 
     //query.......................................................................................................
     @RequestMapping("/page")
-    public IPage<Article> page(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize){
+    public IPage<Article> page(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize, @Param("issueId")String issueId){
         IPage<Article> page = new Page<>(pageNo, pageSize);
         QueryWrapper queryWrapper = new QueryWrapper<>();
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
         queryWrapper.eq("orgId",orgId);
-//        if(StringUtils.isNotEmpty(sponName)){
-//            queryWrapper.eq("sponName",sponName);
-//        }
-//        if(StringUtils.isNotEmpty(site)){
-//            queryWrapper.eq("site",site);
-//        }
+        queryWrapper.eq("issueId",issueId);
         IPage<Article> articleIPage = articleService.page(page,queryWrapper);
         return articleIPage;
     }

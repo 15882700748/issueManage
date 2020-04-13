@@ -65,7 +65,6 @@ public class SponController {
             spon.setOrgId(Integer.valueOf(orgId));
             //图标控制
             String fileName = spon.getLogoUrl();
-            System.out.println(fileName);
             try {
                 String path = ResourceUtils.getURL("classpath:static/").getPath();
                 String prex = stringRedisTemplate.opsForValue().get("sponTempPrex");
@@ -75,7 +74,6 @@ public class SponController {
                 String targetFilePath;
                 boolean isUpload ;
                 // no upload
-                System.out.println(prex);
                 if(StringUtils.isEmpty(prex)){
                     prex = randomUUID().toString();
                     tempPath = path + "sponIcon/";
