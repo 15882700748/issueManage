@@ -16,7 +16,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author zst
- * @since 2020-02-16
+ * @since 2020-04-13
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -43,6 +43,9 @@ public class Article extends Model<Article> {
 
     @TableField("issueId")
     private String issueId;
+
+    @TableField("styleId")
+    private Integer styleId;
 
 
     @Override

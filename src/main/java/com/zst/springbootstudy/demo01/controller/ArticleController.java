@@ -60,7 +60,7 @@ public class ArticleController {
         map.put("code","100");
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
         QueryWrapper<Article> queryWrapper = new QueryWrapper();
-        queryWrapper.lambda().eq(Article::getTitle,article.getTitle()).or().eq(Article::getContent,article.getContent())
+        queryWrapper.lambda().eq(Article::getTitle,article.getTitle()).eq(Article::getContent,article.getContent())
                 .eq(Article::getOrgId,orgId).eq(Article::getIssueId,article.getIssueId());
         int size = articleService.list(queryWrapper).size();
         if(size > 0 ){

@@ -104,13 +104,13 @@ public class MysqlGenerator {
         strategy.setLogicDeleteFieldName("deleted");
         // TODO 指定生成的bean的数据库表名
 //        strategy.setInclude("album");
-//        strategy.setInclude("article");
+        strategy.setInclude("article");
 //        strategy.setInclude("colum");
 //        strategy.setInclude("img");
 //        strategy.setInclude("issue");
 //        strategy.setInclude("spon");
 //        strategy.setInclude("organization");
-        strategy.setInclude("img");
+//        strategy.setInclude("img");
         //strategy.setSuperEntityColumns("id");
         // 驼峰转连字符
         strategy.setControllerMappingHyphenStyle(true);

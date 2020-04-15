@@ -153,4 +153,21 @@ public class AlbumController {
         IPage<Album> albumIPage= albumService.page(page,queryWrapper);
         return albumIPage;
     }
+    @RequestMapping("/getFisrtPicture")
+    public Map<String, Object> getFirstPicture(@RequestBody Album album){
+        Map<String, Object> map = new HashMap<>();
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("albumId",album.getAlbumId());
+        int size = imgService.list(queryWrapper).size();
+        Img img;
+        if(size > 0){
+            img = (Img) imgService.list(queryWrapper).get(0);
+        }else{
+            img = new Img();
+            img.setImgUrl("16christine-zhu-1460573-unsplash.jpg");
+        }
+        map.put("img",img);
+        return map;
+    }
 }

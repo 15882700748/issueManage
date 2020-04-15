@@ -7,8 +7,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zst.springbootstudy.demo01.entity.Organization;
+import com.zst.springbootstudy.demo01.entity.Style;
 import com.zst.springbootstudy.demo01.service.OrganizationService;
 import com.zst.springbootstudy.demo01.service.impl.OrganizationServiceImpl;
+import com.zst.springbootstudy.demo01.service.impl.StyleServiceImpl;
 import com.zst.springbootstudy.demo01.tool.JWTUtil;
 import com.zst.springbootstudy.demo01.tool.RandomValidateCodeUtil;
 import com.zst.springbootstudy.demo01.tool.SendMail;
@@ -41,6 +43,8 @@ public class OrganizationController {
 
     @Autowired
     OrganizationServiceImpl organizationService;
+    @Autowired
+    StyleServiceImpl styleService;
 
     @Autowired
     JWTUtil jwtUtil;
@@ -76,6 +80,15 @@ public class OrganizationController {
             organization.setCreateTime(LocalDateTime.now());
             organization.setLogoUrl("20721929.png");
             organizationService.save(organization);
+            //创建style默认
+            QueryWrapper<Organization> queryWrapper = new QueryWrapper();
+            queryWrapper.lambda().eq(Organization::getAccount,organization.getAccount())
+                    .eq(Organization::getPassword,organization.getPassword()).eq(Organization::getTel,organization.getTel());
+            Organization org = organizationService.getOne(queryWrapper);
+            Style style = new Style();
+            style.setLayout("xxx");
+            style.setOrgId(org.getOrgId());
+            styleService.save(style);
             mode.put("code","200");
         }else{
             mode.put("msg","验证码不正确");

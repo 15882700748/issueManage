@@ -11,6 +11,7 @@
         <result column="holdupTime" property="holdupTime" />
         <result column="orgId" property="orgId" />
         <result column="issueId" property="issueId" />
+        <result column="styleId" property="styleId" />
     </resultMap>
 
 </mapper>
