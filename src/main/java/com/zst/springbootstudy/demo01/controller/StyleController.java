@@ -6,11 +6,14 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.zst.springbootstudy.demo01.entity.Article;
 import com.zst.springbootstudy.demo01.entity.Colum;
 import com.zst.springbootstudy.demo01.entity.Issue;
+import com.zst.springbootstudy.demo01.entity.Style;
 import com.zst.springbootstudy.demo01.service.impl.ArticleServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.ColumServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.IssueServiceImpl;
+import com.zst.springbootstudy.demo01.service.impl.StyleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
@@ -39,6 +42,8 @@ public class StyleController {
     ColumServiceImpl columService;
     @Autowired
     ArticleServiceImpl articleService;
+    @Autowired
+    StyleServiceImpl styleService;
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
@@ -71,4 +76,49 @@ public class StyleController {
         }
       return map;
     }
+
+    //add
+
+    @RequestMapping("/addStyle")
+    public Map<String, Object> addStyle(@RequestBody Style style){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","100");
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("orgId",orgId);
+        queryWrapper.eq("layout",style.getLayout());
+        int size = styleService.list(queryWrapper).size();
+        if(size > 0){
+            map.put("msg","已存在，请重新输入");
+        }else{
+            map.put("code","200");
+            styleService.save(style);
+        }
+        return map;
+    }
+    @RequestMapping("/updateStyle")
+    public Map<String, Object> updateStyle(@RequestBody Style style){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","100");
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("orgId",orgId);
+        queryWrapper.eq("layout",style.getLayout());
+        int size = styleService.list(queryWrapper).size();
+        if(size > 1){
+            map.put("msg","已存在，请重新输入");
+        }else{
+            map.put("code","200");
+            styleService.updateById(style);
+        }
+        return map;
+    }
+
+    @RequestMapping("/deleteStyle")
+    public void deleteStyle(@RequestBody Style style){
+        styleService.removeById(style.getStyleId());
+    }
+
+
+
 }
