@@ -11,6 +11,7 @@ import com.zst.springbootstudy.demo01.service.impl.ArticleServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.ColumServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.IssueServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.StyleServiceImpl;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -68,11 +69,16 @@ public class StyleController {
             List<Colum> columList = columService.list(queryColumnWrapper);
             map.put("columns",columList);
             //获取栏目文章
-            QueryWrapper queryArticleWrapper = new QueryWrapper();
+            QueryWrapper queryArticleWrapper = new QueryWrapper<>();
             queryArticleWrapper.eq("orgId",orgId);
             queryArticleWrapper.eq("issueId",issue.getIssueId());
             List<Article> articleList = articleService.list(queryArticleWrapper);
             map.put("articles",articleList);
+            //获取样式
+            QueryWrapper queryStyleWrapper = new QueryWrapper<>();
+            queryStyleWrapper.eq("orgId",orgId);
+            Style style = (Style) styleService.list(queryStyleWrapper).get(0);
+            map.put("style",style);
         }
       return map;
     }
@@ -101,16 +107,7 @@ public class StyleController {
         Map<String,Object> map = new HashMap<>();
         map.put("code","100");
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("orgId",orgId);
-        queryWrapper.eq("layout",style.getLayout());
-        int size = styleService.list(queryWrapper).size();
-        if(size > 1){
-            map.put("msg","已存在，请重新输入");
-        }else{
-            map.put("code","200");
-            styleService.updateById(style);
-        }
+        styleService.updateById(style);
         return map;
     }
 
@@ -119,6 +116,35 @@ public class StyleController {
         styleService.removeById(style.getStyleId());
     }
 
+    @RequestMapping("/queryStyle")
+    public Map<String, Object> queryStyle(@Param("issueId")String  issueId){
+        Map<String,Object> map = new HashMap<>();
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        QueryWrapper queryWrapper= new QueryWrapper<>();
+        queryWrapper .eq("orgId",orgId);
+        Style style = (Style) styleService.list(queryWrapper).get(0);
+        map.put("style",style);
+        stringRedisTemplate.opsForValue().set("issueId",issueId);
+        return map;
+    }
+    @RequestMapping("/getStyle")
+    public Map<String, Object> getStyle(){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","100");
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        String issueId = stringRedisTemplate.opsForValue().get("issueId");
+        if(StringUtils.isEmpty(issueId)){
+            map.put("msg","机构未选择展示会议");
+        }else{
+            QueryWrapper queryWrapper= new QueryWrapper<>();
+            queryWrapper .eq("orgId",orgId);
+            Style style = (Style) styleService.list(queryWrapper).get(0);
+            map.put("style",style);
+            map.put("code","200");
+            map.put("msg","获取成功");
+        }
 
+        return map;
+    }
 
 }

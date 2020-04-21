@@ -211,10 +211,9 @@ public class OrganizationController {
         QueryWrapper<Organization> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("account",organization.getAccount()).eq("password",organization.getPassword());
         int size = organizationService.list(queryWrapper).size();
-        HttpSession session = request.getSession();
-        session.setAttribute("org", organization);
+//        HttpSession session = request.getSession();
+//        session.setAttribute("org", organization);
         String sessionCode = stringRedisTemplate.opsForValue().get("code");
-        System.out.println(sessionCode);
         try {
             mode.put("code","100");
         } catch (JSONException e) {

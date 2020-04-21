@@ -59,14 +59,23 @@ public class ColumController {
         QueryWrapper<Colum> queryWrapper = new QueryWrapper();
         queryWrapper.lambda().eq(Colum::getName,colum.getName()).eq(Colum::getIssueId,colum.getIssueId());
         int size = columService.list(queryWrapper).size();
+        QueryWrapper queryWrapper1 = new QueryWrapper();
+        queryWrapper1.eq("orgId",orgId);
+        queryWrapper1.eq("issueId",colum.getIssueId());
+        int columnNumber = columService.list(queryWrapper1).size();
         if(size > 0 ){
             map.put("msg","已存在，请重新输入");
         }else{
-            colum.setCreatTime(LocalDateTime.now());
-            colum.setOrgId(Integer.valueOf(orgId));
-            columService.save(colum);
-            map.put("code","200");
-            map.put("msg","添加成功");
+            if(columnNumber >=8){
+                map.put("msg","以最大数目，不可增加");
+            }else{
+                colum.setCreatTime(LocalDateTime.now());
+                colum.setOrgId(Integer.valueOf(orgId));
+                columService.save(colum);
+                map.put("code","200");
+                map.put("msg","添加成功");
+            }
+
         }
         return map;
     }
@@ -121,6 +130,28 @@ public class ColumController {
         queryWrapper.eq("issueId",issueId);
         IPage<Colum> columIPage = columService.page(page,queryWrapper);
         return columIPage;
+    }
+    //前端
+
+    @RequestMapping("/getColumns")
+    public Map<String, Object> getColumns(){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","100");
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        String issueId = stringRedisTemplate.opsForValue().get("issueId");
+        queryWrapper.eq("orgId",orgId);
+        if(StringUtils.isNotEmpty(issueId)){
+            queryWrapper.eq("issueId",issueId);
+            List<Colum> list = columService.list(queryWrapper);
+            map.put("code","200");
+            map.put("msg","查询成功");
+            map.put("columns",list);
+        }else{
+            map.put("msg","未设置展示会议");
+        }
+
+        return map;
     }
 
 

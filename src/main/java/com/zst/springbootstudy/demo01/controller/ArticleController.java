@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zst.springbootstudy.demo01.entity.Article;
+import com.zst.springbootstudy.demo01.entity.Colum;
 import com.zst.springbootstudy.demo01.entity.Spon;
 import com.zst.springbootstudy.demo01.service.impl.ArticleServiceImpl;
 import com.zst.springbootstudy.demo01.tool.RegHtml;
@@ -126,12 +127,19 @@ public class ArticleController {
 
     //query.......................................................................................................
     @RequestMapping("/page")
-    public IPage<Article> page(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize, @Param("issueId")String issueId){
+    public IPage<Article> page(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize, @Param("issueId")String issueId,
+                               @Param("title")String title,@Param("content")String content){
         IPage<Article> page = new Page<>(pageNo, pageSize);
         QueryWrapper queryWrapper = new QueryWrapper<>();
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
         queryWrapper.eq("orgId",orgId);
         queryWrapper.eq("issueId",issueId);
+        if(StringUtils.isNotEmpty(title)){
+            queryWrapper.like("title",title);
+        }
+        if(StringUtils.isNotEmpty(content)){
+            queryWrapper.like("content",content);
+        }
         IPage<Article> articleIPage = articleService.page(page,queryWrapper);
         return articleIPage;
     }
@@ -139,5 +147,19 @@ public class ArticleController {
     @RequestMapping("/getOneArticle")
     public Article getOneArticle(@RequestBody Article article){
         return articleService.getById(article.getArticleId());
+    }
+
+    //前端
+
+    @RequestMapping("/getArticles")
+    public IPage<Article> getArticles(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize){
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        String issueId = stringRedisTemplate.opsForValue().get("issueId");
+        IPage<Article> page = new Page<>(pageNo, pageSize);
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("orgId",orgId);
+        queryWrapper.eq("issueId",issueId);
+        IPage<Article> articleIPage = articleService.page(page,queryWrapper);
+        return articleIPage;
     }
 }

@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.zst.springbootstudy.demo01.entity.Colum;
 import com.zst.springbootstudy.demo01.entity.Spon;
 import com.zst.springbootstudy.demo01.service.impl.SponServiceImpl;
 import org.apache.ibatis.annotations.Param;
@@ -20,6 +21,7 @@ import java.io.*;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.UUID.randomUUID;
@@ -190,6 +192,20 @@ public class SponController {
         }
         IPage<Spon> sponIPage = sponService.page(page,queryWrapper);
         return sponIPage;
+    }
+
+    @RequestMapping("/getColumns")
+    public Map<String, Object> getColumns(){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","100");
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        queryWrapper.eq("orgId",orgId);
+        List<Spon> list = sponService.list(queryWrapper);
+        map.put("code","200");
+        map.put("msg","查询成功");
+        map.put("spons",list);
+        return map;
     }
 
 

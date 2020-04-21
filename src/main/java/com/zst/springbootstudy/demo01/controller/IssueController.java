@@ -210,7 +210,7 @@ public class IssueController {
      * @return
      */
     @RequestMapping("/queryPage")
-    public IPage<Issue> page(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize){
+    public IPage<Issue> queryPage(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize){
         IPage<Issue> page = new Page<>(pageNo, pageSize);
         QueryWrapper queryWrapper = new QueryWrapper<>();
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
@@ -219,6 +219,45 @@ public class IssueController {
         return issueIPage;
     }
 
+    @RequestMapping("/page")
+    public IPage<Issue> page(@Param("pageNo") Integer pageNo, @Param("pageSize")Integer pageSize,
+                             @Param("title")String title,@Param("content")String content){
+        IPage<Issue> page = new Page<>(pageNo, pageSize);
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        queryWrapper.eq("orgId",orgId);
+        if(StringUtils.isNotEmpty(title)){
+            queryWrapper.like("title",title);
+        }
+        if(StringUtils.isNotEmpty(content)){
+            queryWrapper.like("content",content);
+        }
+        IPage<Issue> issueIPage = issueService.page(page,queryWrapper);
+        return issueIPage;
+    }
+
+    //前端
+    @RequestMapping("/getSelected")
+    public String getIssueId(){
+        return stringRedisTemplate.opsForValue().get("issueId");
+    }
+
+    @RequestMapping("/getIssue")
+    public Map<String, Object> getIssue(){
+        Map<String,Object> map = new HashMap<>();
+        map.put("code","100");
+        String orgId = stringRedisTemplate.opsForValue().get("orgId");
+        String issueId = stringRedisTemplate.opsForValue().get("issueId");
+        if(StringUtils.isNotEmpty(issueId)){
+            Issue issue = issueService.getById(issueId);
+            map.put("code","200");
+            map.put("msg","查询成功");
+            map.put("columns",issue);
+        }else{
+            map.put("msg","未设置展示会议");
+        }
+        return map;
+    }
     @RequestMapping("/getAll")
     public List<IssueArticle> getAll(){
         return mapper.selectIssueArticles();
