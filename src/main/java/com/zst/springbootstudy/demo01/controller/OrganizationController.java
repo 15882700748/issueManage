@@ -257,4 +257,5 @@ public class OrganizationController {
         queryWrapper.eq("orgId",orgId);
         return organizationService.getOne(queryWrapper);
     }
+
 }
