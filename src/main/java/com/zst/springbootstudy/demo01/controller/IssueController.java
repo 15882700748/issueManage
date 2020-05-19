@@ -11,6 +11,7 @@ import com.zst.springbootstudy.demo01.entity.Issue;
 import com.zst.springbootstudy.demo01.entity.IssueArticle;
 import com.zst.springbootstudy.demo01.mapper.IssueArticleMapper;
 import com.zst.springbootstudy.demo01.service.impl.ArticleServiceImpl;
+import com.zst.springbootstudy.demo01.service.impl.ColumServiceImpl;
 import com.zst.springbootstudy.demo01.service.impl.IssueServiceImpl;
 import com.zst.springbootstudy.demo01.tool.RegHtml;
 import org.apache.ibatis.annotations.Param;
@@ -52,6 +53,9 @@ public class IssueController {
 
     @Autowired
     ArticleServiceImpl articleService;
+
+    @Autowired
+    ColumServiceImpl columService;
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
@@ -167,10 +171,11 @@ public class IssueController {
 
         //删除会议文章
         String id = stringRedisTemplate.opsForValue().get("orgId");
-        QueryWrapper<Article> queryWrapper = new QueryWrapper();
+        QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("orgId",id);
         queryWrapper.eq("issueId",issue.getIssueId());
         articleService.remove(queryWrapper);
+        columService.remove(queryWrapper);
         issueService.removeById(issue.getIssueId());
     }
     //update.......................................................................................................

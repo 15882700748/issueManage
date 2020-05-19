@@ -159,9 +159,7 @@ public class SponController {
         queryWrapper.lambda().eq(Spon :: getSponName,spon.getSponName())
                .or().eq(Spon::getSite,spon.getSite()).eq(Spon::getOrgId,stringRedisTemplate.opsForValue().get("orgId")).ne(Spon::getSponId,spon.getSponId());
         int size = sponService.list(queryWrapper).size();
-        if(size > 0){
-            map.put("msg","已存在");
-        }else{
+        if(size > 1){ map.put("msg","已存在"); }else{
             sponService.updateById(spon);
             map.put("spon",sponService.getById(spon.getSponId()));
             map.put("msg","成功");
@@ -184,12 +182,8 @@ public class SponController {
         QueryWrapper queryWrapper = new QueryWrapper<>();
         String orgId = stringRedisTemplate.opsForValue().get("orgId");
         queryWrapper.eq("orgId",orgId);
-        if(StringUtils.isNotEmpty(sponName)){
-            queryWrapper.eq("sponName",sponName);
-        }
-        if(StringUtils.isNotEmpty(site)){
-            queryWrapper.eq("site",site);
-        }
+        if(StringUtils.isNotEmpty(sponName)){ queryWrapper.eq("sponName",sponName); }
+        if(StringUtils.isNotEmpty(site)){ queryWrapper.eq("site",site); }
         IPage<Spon> sponIPage = sponService.page(page,queryWrapper);
         return sponIPage;
     }

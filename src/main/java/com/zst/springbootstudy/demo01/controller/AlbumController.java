@@ -132,9 +132,8 @@ public class AlbumController {
         QueryWrapper<Album> queryWrapper = new QueryWrapper();
         queryWrapper.lambda().eq(Album::getAlbumName,album.getAlbumName()).eq(Album::getOrgId,orgId);
         int size = albumService.list(queryWrapper).size();
-        if(size >1 ){
-            map.put("msg","相册已存在");
-        }else{
+        if(size >1 ){ map.put("msg","相册已存在"); }
+        else{
             map.put("msg","修改成功成功");
             map.put("code","200");
             albumService.updateById(album);

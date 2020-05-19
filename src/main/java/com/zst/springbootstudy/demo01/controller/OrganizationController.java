@@ -86,7 +86,7 @@ public class OrganizationController {
                     .eq(Organization::getPassword,organization.getPassword()).eq(Organization::getTel,organization.getTel());
             Organization org = organizationService.getOne(queryWrapper);
             Style style = new Style();
-            style.setLayout("xxx");
+            style.setLayout("\"{\"color\":\"rgba(255, 69, 0, 0.68)\",\"articleType\":\"卡片效果\",\"Layout\":[\"首页\",\"栏目\",\"\"],\"img\":\"\"}\"");
             style.setOrgId(org.getOrgId());
             styleService.save(style);
             mode.put("code","200");
